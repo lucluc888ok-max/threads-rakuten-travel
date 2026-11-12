@@ -1,0 +1,22 @@
+# 認証情報
+.env
+.env.*
+!.env.example
+
+# スクショ（クーポン画像）と抽出途中のファイル
+inbox/*
+!inbox/.gitkeep
+!inbox/done/
+inbox/done/*
+!inbox/done/.gitkeep
+
+# 作業用DB・中間ファイル（永続化は data/db_dump.sql で行う）
+data/*
+!data/db_dump.sql
+
+# 下書き出力（DBの drafts テーブルにも保存される）
+drafts/*.md
+
+__pycache__/
+*.pyc
+.venv/
