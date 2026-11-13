@@ -162,7 +162,7 @@ class PipelineTest(unittest.TestCase):
              "post2": p2.format(url101)},
             {"hotel_no": 101, "variant": "B",
              "post1": "新宿駅南口から徒歩3分で、天然温泉の大浴場つき。\nホテル新宿サンプルは口コミ1,200件で評価4.32。"
-                      "仕事帰りにそのまま泊まれる距離感がいい。\nいまなら3,000円OFFのクーポンもあります。\n#PR",
+                      "\n20,000円以上の予約で3,000円OFFのクーポンもあります。\n#PR",
              "post2": p2.format(url101), "strength": "駅近・大浴場",
              "strength_evidence": "access「JR新宿駅南口より徒歩3分」/ hotelSpecial「天然温泉の大浴場が自慢」"},
             {"hotel_no": 102, "variant": "A",
@@ -181,6 +181,7 @@ class PipelineTest(unittest.TestCase):
         bad = json.loads(json.dumps(good, ensure_ascii=False))
         bad[2]["post1"] = bad[2]["post1"].replace("獲得は11/30まで。", "残りわずか、5,000円お得！")
         bad[3]["post1"] = bad[3]["post1"].replace("#PR", "")
+        bad[1]["post1"] = bad[1]["post1"].replace("20,000円以上の予約で", "")  # 条件なしの金額
         path.write_text(json.dumps({"drafts": bad}, ensure_ascii=False), encoding="utf-8")
         res = drafter.check_and_save(self.conn, "20261112")
         msg = "\n".join(res["errors"])
@@ -188,6 +189,7 @@ class PipelineTest(unittest.TestCase):
         self.assertIn("残りわずか", msg)
         self.assertIn("5000", msg)
         self.assertIn("#PR がない", msg)
+        self.assertIn("前提条件", msg)
 
         path.write_text(json.dumps({"drafts": good}, ensure_ascii=False), encoding="utf-8")
         res = drafter.check_and_save(self.conn, "20261112")
@@ -199,6 +201,7 @@ class PipelineTest(unittest.TestCase):
         self.assertIn("## ⚠ ホテル照合の確認待ち", md)
         self.assertIn("**1投稿目**", md)
         self.assertIn(url101, md)
+        self.assertNotIn("img.example", md)  # 施設画像URLは出さない（SNS投稿不可）
 
         # 投稿を記録 → 14日以内は除外される
         draft_id = self.conn.execute("SELECT id FROM drafts WHERE hotel_no=101 AND variant='B'").fetchone()[0]

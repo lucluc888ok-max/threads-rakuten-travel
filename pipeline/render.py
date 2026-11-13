@@ -66,7 +66,7 @@ def render(conn: sqlite3.Connection, run_date: str, cand_data: dict, pending: li
         lines.append(f"- 選定条件 {c['criteria_met']}/3: 口コミ500件以上{'○' if crit['reviews_500plus'] else '×'}"
                      f" / 割引上位{'○' if crit['top_discount'] else '×'} / 強みあり{'○' if crit['has_strength'] else '×'}")
         lines.append(f"- 急かす表現: {'使用可' if c['urgency_allowed'] else '使用不可'}")
-        lines.append(f"- 画像: {h.get('image_url') or '—'}")
+        # 楽天トラベルの規約: 施設画像（API取得分も含む）の SNS 投稿は不可。md にも載せない
         if not h.get("affiliate_url"):
             lines.append("- ⚠ アフィリエイトURLが取得できていません。リンクの動作確認時に要確認")
         if c["strengths"]:

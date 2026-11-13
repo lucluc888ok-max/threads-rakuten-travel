@@ -59,6 +59,12 @@ def lint(draft: dict, cand: dict) -> tuple[list[str], list[str]]:
                     f"{label}: 急かす表現「{w}」は獲得期限{config.URGENCY_MAX_DAYS}日以内のみ可"
                     f"（残り{cand['days_to_deadline']}日）")
 
+    # 楽天トラベル規約「条件を省略して金額のみを記載すること」の禁止
+    for name, text in (("1投稿目", p1), ("2投稿目", p2)):
+        t = unicodedata.normalize("NFKC", URL.sub("", text))
+        if re.search(r"\d[\d,]*円", t) and not any(re.search(pt, t) for pt in config.PRICE_CONDITION_PATTERNS):
+            errors.append(f"{label}: {name}に金額があるが前提条件（人数・泊数・プラン・利用条件額）がない")
+
     allowed = set(cand["allowed_numbers"])
     for name, text in (("1投稿目", p1), ("2投稿目", p2)):
         t = unicodedata.normalize("NFKC", URL.sub("", text))
